@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Опис Python-програми для пінгування у стилі Cisco Packet Tracer – ДЗ з предмету Організація комп. мереж" />
+  <title>Ping Utility – ДЗ №1 | Організація комп. мереж</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #1e1e2e;
+      --surface: #181825;
+      --surface2: #313244;
+      --border: #45475a;
+      --text: #cdd6f4;
+      --subtext: #a6adc8;
+      --blue: #89b4fa;
+      --green: #a6e3a1;
+      --red: #f38ba8;
+      --mauve: #cba6f7;
+      --peach: #fab387;
+      --font-mono: "Consolas", "Courier New", monospace;
+      --font-ui: "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    header .logo {
+      font-size: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    header p {
+      font-size: .85rem;
+      color: var(--subtext);
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      gap: 2px;
+    }
+
+    nav a {
+      color: var(--subtext);
+      text-decoration: none;
+      padding: 12px 16px;
+      font-size: .9rem;
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    section {
+      margin-bottom: 48px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: var(--mauve);
+      margin: 20px 0 8px;
+    }
+
+    p {
+      color: var(--subtext);
+      margin-bottom: 10px;
+    }
+
+    .terminal {
+      background: #0c0c0c;
+      border: 1px solid #555;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+
+    .terminal-bar {
+      background: #0078d7;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .terminal-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .terminal-icon {
+      font-size: .9rem;
+      flex-shrink: 0;
+    }
+
+    .terminal-title {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .terminal-controls {
+      display: flex;
+      gap: 0;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    .terminal-controls span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 22px;
+      font-size: .7rem;
+      color: #fff;
+      cursor: default;
+      font-family: var(--font-mono);
+    }
+
+    .terminal-controls span:hover {
+      background: rgba(255, 255, 255, .15);
+    }
+
+    .terminal-controls .ctrl-close:hover {
+      background: #c42b1c;
+    }
+
+    .terminal pre {
+      font-family: var(--font-mono);
+      font-size: .88rem;
+      padding: 18px 20px;
+      overflow-x: auto;
+      line-height: 1.7;
+      color: #cccccc;
+    }
+
+    .terminal pre .cmd {
+      color: #ffffff;
+    }
+
+    .terminal pre .reply {
+      color: #3dd68c;
+    }
+
+    .terminal pre .stat {
+      color: #9cdcfe;
+    }
+
+    .terminal pre .kw {
+      color: #cccccc;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .card h4 {
+      font-size: .95rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: .82rem;
+      color: var(--subtext);
+      margin: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin-top: 12px;
+    }
+
+    thead tr {
+      background: var(--surface2);
+    }
+
+    th,
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    td {
+      color: var(--subtext);
+    }
+
+    tr:nth-child(even) {
+      background: #1a1a29;
+    }
+
+    .code-block {
+      background: #11111b;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: var(--font-mono);
+      font-size: .85rem;
+      color: var(--text);
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    .code-block .c {
+      color: #6c7086;
+      font-style: italic;
+    }
+
+    .code-block .k {
+      color: var(--mauve);
+    }
+
+    .code-block .f {
+      color: var(--blue);
+    }
+
+    .code-block .s {
+      color: var(--green);
+    }
+
+    .tree {
+      font-family: var(--font-mono);
+      font-size: .88rem;
+      background: #11111b;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      line-height: 2;
+      color: var(--text);
+    }
+
+    .tree .folder {
+      color: var(--blue);
+    }
+
+    .tree .file-py {
+      color: var(--green);
+    }
+
+    .tree .file-ht {
+      color: var(--peach);
+    }
+
+    .tree .desc {
+      color: #6c7086;
+      font-size: .78rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: .8rem;
+      color: var(--subtext);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      main { padding: 24px 16px; }
+      .cards { grid-template-columns: 1fr; }
+      nav { flex-wrap: wrap; justify-content: center; padding: 8px 16px; }
+      nav a { padding: 10px 12px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-content">
+      <h1>Ping Utility – Cisco Packet Tracer</h1>
+      <p>ДЗ №1 · Дисципліна: Організація комп. мереж · Студент: Нагорний Ілля · РПЗ-24Б</p>
+    </div>
+  </header>
+
+  <nav>
+    <a href="#about" class="active">Про програму</a>
+    <a href="#libraries">Бібліотеки</a>
+    <a href="#cli">CLI-версія</a>
+    <a href="#gui">GUI-версія</a>
+    <a href="#code">Код</a>
+    <a href="#files">Файли</a>
+  </nav>
+
+  <main>
+
+    <section id="about">
+      <h2>Про програму</h2>
+      <p>
+        Програма реалізує утиліту <strong style="color:var(--blue)">ping</strong> мовою Python,
+        яка імітує поведінку команди <code style="color:var(--peach)">ping</code> у середовищі
+        <strong>Cisco Packet Tracer</strong>. Програма доступна у двох варіантах:
+        консольному (CLI) та графічному (GUI).
+      </p>
+
+      <h3>Що таке ping?</h3>
+      <p>
+        <strong>Ping</strong> – мережева утиліта для перевірки доступності хоста в мережі.
+        Вона надсилає пакети протоколу <strong>ICMP Echo Request</strong> на цільовий хост
+        і очікує відповіді <strong>ICMP Echo Reply</strong>. За часом відповіді визначається
+        затримка (RTT – Round Trip Time) у мілісекундах.
+      </p>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-bar-left">
+            <span class="terminal-title">Cisco Packet Tracer PC Command Line 1.0</span>
+          </div>
+          <div class="terminal-controls">
+            <span>─</span>
+            <span>□</span>
+            <span class="ctrl-close">✕</span>
+          </div>
+        </div>
+        <pre>
+<span class="cmd">C:\&gt;ping 192.168.0.3</span>
+
+<span class="kw">Pinging 192.168.0.3 with 32 bytes of data:</span>
+
+<span class="reply">Reply from 192.168.0.3: bytes=32 time=4ms TTL=128</span>
+<span class="reply">Reply from 192.168.0.3: bytes=32 time&lt;1ms TTL=128</span>
+<span class="reply">Reply from 192.168.0.3: bytes=32 time&lt;1ms TTL=128</span>
+<span class="reply">Reply from 192.168.0.3: bytes=32 time&lt;1ms TTL=128</span>
+
+<span class="stat">Ping statistics for 192.168.0.3:</span>
+<span class="stat">    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),</span>
+<span class="stat">Approximate round trip times in milli-seconds:</span>
+<span class="stat">    Minimum = 0ms, Maximum = 4ms, Average = 1ms</span>
+      </pre>
+      </div>
+
+      <p>Саме такий формат виводу відтворено у нашій програмі – як у CLI, так і в GUI.</p>
+    </section>
+
+    <section id="libraries">
+      <h2>Використані бібліотеки</h2>
+      <p>Усі бібліотеки є стандартними – встановлення pip не потрібне.</p>
+
+      <div class="cards">
+        <div class="card">
+          <h4>subprocess</h4>
+          <p>Запускає системну команду <code>ping</code> та зчитує її вивід у Python.</p>
+        </div>
+        <div class="card">
+          <h4>re</h4>
+          <p>Регулярні вирази для парсингу часу відповіді (<code>time=Xms</code>) з виводу ping.</p>
+        </div>
+        <div class="card">
+          <h4>threading</h4>
+          <p>Виконує пінгування у окремому потоці, щоб GUI не «зависав» під час роботи.</p>
+        </div>
+        <div class="card">
+          <h4>tkinter</h4>
+          <p>Стандартна GUI-бібліотека Python. Використана для GUI-версії програми.</p>
+        </div>
+        <div class="card">
+          <h4>platform</h4>
+          <p>Визначає поточну ОС, щоб обрати правильні параметри команди ping.</p>
+        </div>
+        <div class="card">
+          <h4>sys</h4>
+          <p>Зчитує аргументи командного рядка для CLI-версії (наприклад, IP-адресу).</p>
+        </div>
+      </div>
+
+      <h3>Порівняльна таблиця</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Бібліотека</th>
+            <th>Тип</th>
+            <th>Версія</th>
+            <th>Призначення</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>subprocess</td>
+            <td>Стандартна</td>
+            <td>Python ≥ 3.3</td>
+            <td>Виклик системного ping</td>
+          </tr>
+          <tr>
+            <td>re</td>
+            <td>Стандартна</td>
+            <td>Python ≥ 3.0</td>
+            <td>Парсинг виводу</td>
+          </tr>
+          <tr>
+            <td>threading</td>
+            <td>Стандартна</td>
+            <td>Python ≥ 3.0</td>
+            <td>Асинхронне виконання</td>
+          </tr>
+          <tr>
+            <td>tkinter</td>
+            <td>Стандартна</td>
+            <td>Python ≥ 3.0</td>
+            <td>Графічний інтерфейс</td>
+          </tr>
+          <tr>
+            <td>platform</td>
+            <td>Стандартна</td>
+            <td>Python ≥ 3.0</td>
+            <td>Визначення ОС</td>
+          </tr>
+          <tr>
+            <td>sys</td>
+            <td>Стандартна</td>
+            <td>Python ≥ 3.0</td>
+            <td>Аргументи CLI</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="cli">
+      <h2>CLI-версія (ping_cli.py)</h2>
+      <p>
+        Консольна версія відтворює точний формат виводу Cisco Packet Tracer.
+        Підтримує як аргументи командного рядка, так і інтерактивний режим.
+      </p>
+
+      <h3>Запуск</h3>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-bar-left">
+            <span class="terminal-title">Командний рядок</span>
+          </div>
+          <div class="terminal-controls">
+            <span>─</span><span>□</span><span class="ctrl-close">✕</span>
+          </div>
+        </div>
+        <pre>
+<span class="cmd">python ping_cli.py 127.0.0.1</span>
+
+Cisco Packet Tracer PC Command Line 1.0
+<span class="cmd">C:\&gt;ping 127.0.0.1</span>
+
+<span class="kw">Pinging 127.0.0.1 with 32 bytes of data:</span>
+
+<span class="reply">Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128</span>
+<span class="reply">Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128</span>
+<span class="reply">Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128</span>
+<span class="reply">Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128</span>
+
+<span class="stat">Ping statistics for 127.0.0.1:</span>
+<span class="stat">    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),</span>
+<span class="stat">Approximate round trip times in milli-seconds:</span>
+<span class="stat">    Minimum = 0ms, Maximum = 0ms, Average = 0ms</span>
+      </pre>
+      </div>
+
+      <h3>Скриншот програми</h3>
+      <img src="python_SCq7rib0ts.png" alt="Консольний вивід програми ping_cli.py — пінгування 8.8.8.8"
+        style="max-width:100%;border-radius:6px;border:1px solid var(--border);margin:12px 0;" loading="lazy" />
+
+      <h3>Алгоритм роботи</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Крок</th>
+            <th>Дія</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Визначити ОС (Windows / Linux / macOS) через <code>platform.system()</code></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Скласти команду: <code>ping -n 4 host</code> (Win) або <code>ping -c 4 host</code> (Unix)</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Запустити через <code>subprocess.Popen</code> і зчитати stdout</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Розпарсити кожен рядок регулярними виразами: час, статус відповіді</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Вивести статистику: Sent / Received / Lost, Min / Max / Avg</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="gui">
+      <h2>GUI-версія (ping_gui.py)</h2>
+      <p>
+        Графічна версія будується на базі <strong>tkinter</strong> (стандартна бібліотека Python).
+        Інтерфейс стилізований під темну тему.
+      </p>
+
+      <h3>Особливості GUI</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>Потоки (threading)</h4>
+          <p>Пінгування виконується у окремому потоці – GUI не блокується під час роботи.</p>
+        </div>
+        <div class="card">
+          <h4>Кольоровий вивід</h4>
+          <p>Відповіді – зеленим, таймаути – червоним. Заголовки – синім.</p>
+        </div>
+        <div class="card">
+          <h4>Картки статистики</h4>
+          <p>Після завершення – кольорові картки: Надіслано, Отримано, Втрачено, Мін/Макс/Сер.</p>
+        </div>
+        <div class="card">
+          <h4>Enter для пінгу</h4>
+          <p>Натискання Enter у полі IP запускає пінгування без кліку мишею.</p>
+        </div>
+      </div>
+
+      <h3>Скриншот програми</h3>
+      <img src="python_GUj38yPZqK.png" alt="Графічний інтерфейс ping_gui.py з результатами пінгування 8.8.8.8"
+        style="max-width:100%;border-radius:6px;border:1px solid var(--border);margin:12px 0;" loading="lazy" />
+    </section>
+
+    <section id="code">
+      <h2>Ключові фрагменти коду</h2>
+
+      <h3>Виклик системного ping (subprocess)</h3>
+      <div class="code-block">
+        <span class="c"># визначаємо параметри залежно від ос</span>
+        <span class="k">if</span> system == <span class="s">"windows"</span>:
+        cmd = [<span class="s">"ping"</span>, <span class="s">"-n"</span>, str(count), host]
+        <span class="k">else</span>:
+        cmd = [<span class="s">"ping"</span>, <span class="s">"-c"</span>, str(count), host]
+
+        process = subprocess.<span class="f">Popen</span>(cmd, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=<span class="k">True</span>, encoding=<span class="s">"cp866"</span>)
+        stdout, _ = process.<span class="f">communicate</span>()
+      </div>
+
+      <h3>Парсинг часу відповіді (re)</h3>
+      <div class="code-block">
+        <span class="c"># перевіряємо time&lt;1ms (час менший за 1 мс)</span>
+        <span class="k">if</span> re.<span class="f">search</span>(<span class="s">r"time&lt;1ms"</span>, line,
+        re.IGNORECASE):
+        <span class="k">return</span> <span class="s">0</span>, <span class="s">"time&lt;1ms"</span>
+
+        <span class="c"># витягуємо числовий час</span>
+        m = re.<span class="f">search</span>(<span class="s">r"time=(\d+)ms"</span>, line, re.IGNORECASE)
+        <span class="k">if</span> m:
+        t = <span class="f">int</span>(m.<span class="f">group</span>(1))
+        <span class="k">return</span> t, f<span class="s">"time={t}ms"</span>
+      </div>
+
+      <h3>Запуск у потоці (threading)</h3>
+      <div class="code-block">
+        <span class="c"># запускаємо пінгування у фоновому потоці</span>
+        thread = threading.<span class="f">Thread</span>(
+        target=run_ping,
+        args=(host, count, output, stats_frame, btn_ping),
+        daemon=<span class="k">True</span>
+        )
+        thread.<span class="f">start</span>()
+      </div>
+    </section>
+
+    <section id="files">
+      <h2>Ієрархія файлів проекту</h2>
+      <div class="tree">
+        <span class="folder">ДЗ_1_Ping/</span><br>
+        ├── <span class="file-py">ping_cli.py</span>
+        <span class="desc">– консольна версія утиліти ping</span><br>
+        ├── <span class="file-py">ping_gui.py</span>
+        <span class="desc">– графічна версія (tkinter)</span><br>
+        ├── <span style="color:var(--subtext)">ієрархія.txt</span>
+        <span class="desc">– ієрархія файлів з підписами</span><br>
+        └── <span class="folder">site/</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file-ht">index.html</span>
+        <span class="desc">– сайт з описом проекту (цей файл)</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;├── <span style="color:var(--peach)">python_SCq7rib0ts.png</span>
+        <span class="desc">– скриншот CLI-версії (ping 8.8.8.8)</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;└── <span style="color:var(--peach)">python_GUj38yPZqK.png</span>
+        <span class="desc">– скриншот GUI-версії (ping 8.8.8.8)</span>
+      </div>
+
+      <h3>Опис файлів</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Файл</th>
+            <th>Тип</th>
+            <th>Призначення</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ping_cli.py</td>
+            <td>Python</td>
+            <td>CLI-утиліта пінгування у стилі Cisco Packet Tracer. Підтримує аргументи та інтерактивний режим.</td>
+          </tr>
+          <tr>
+            <td>ping_gui.py</td>
+            <td>Python</td>
+            <td>GUI-версія з темним інтерфейсом, кольоровим виводом і статистикою у вигляді карток.</td>
+          </tr>
+          <tr>
+            <td>ієрархія.txt</td>
+            <td>TXT</td>
+            <td>Ієрархія всіх файлів проекту з підписами.</td>
+          </tr>
+          <tr>
+            <td>site/index.html</td>
+            <td>HTML/CSS</td>
+            <td>Сайт з описом програми: бібліотеки, алгоритм, приклади, ієрархія файлів.</td>
+          </tr>
+          <tr>
+            <td>site/python_SCq7rib0ts.png</td>
+            <td>PNG</td>
+            <td>Скриншот CLI-версії: пінгування 8.8.8.8, вивід у терміналі.</td>
+          </tr>
+          <tr>
+            <td>site/python_GUj38yPZqK.png</td>
+            <td>PNG</td>
+            <td>Скриншот GUI-версії: пінгування 8.8.8.8, картки статистики.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    Нагорний Ілля · РПЗ-24Б · Організація комп. мереж · ДЗ №1
+  </footer>
+
+  <script>
+    const sections = document.querySelectorAll("section[id]");
+    const navLinks = document.querySelectorAll("nav a");
+
+    window.addEventListener("scroll", () => {
+      let current = "";
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 80) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.classList.toggle("active", a.getAttribute("href") === "#" + current);
+      });
+    });
+  </script>
+</body>
+
+</html>
